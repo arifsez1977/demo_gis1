@@ -49,15 +49,28 @@
       border: none;
       cursor: pointer;
     }
+    .distance-btn {
+      background-color: #2980b9;
+      margin-top: 0.3rem;
+    }
   </style>
 </head>
 <body>
   <div id="sidebar">
     <h2>Points of Interest</h2>
     <ul>
-      <li><a href="#" onclick="flyToLocation(40.7128, -74.006)">New York City</a></li>
-      <li><a href="#" onclick="flyToLocation(34.0522, -118.2437)">Los Angeles</a></li>
-      <li><a href="#" onclick="flyToLocation(41.8781, -87.6298)">Chicago</a></li>
+      <li>
+        <a href="#" onclick="flyToLocation(40.7128, -74.006)">New York City (Pop: 8.6M)</a>
+        <button class="distance-btn" onclick="queryDistance(40.7128, -74.006, 'New York City')">Distance to NYC</button>
+      </li>
+      <li>
+        <a href="#" onclick="flyToLocation(34.0522, -118.2437)">Los Angeles (Pop: 4.0M)</a>
+        <button class="distance-btn" onclick="queryDistance(34.0522, -118.2437, 'Los Angeles')">Distance to LA</button>
+      </li>
+      <li>
+        <a href="#" onclick="flyToLocation(41.8781, -87.6298)">Chicago (Pop: 2.7M)</a>
+        <button class="distance-btn" onclick="queryDistance(41.8781, -87.6298, 'Chicago')">Distance to Chicago</button>
+      </li>
     </ul>
     <button onclick="locateUser()">Go to My Location</button>
   </div>
@@ -77,9 +90,9 @@
     }).addTo(map);
 
     const markers = [
-      { coords: [40.7128, -74.006], popup: 'New York City' },
-      { coords: [34.0522, -118.2437], popup: 'Los Angeles' },
-      { coords: [41.8781, -87.6298], popup: 'Chicago' }
+      { coords: [40.7128, -74.006], popup: 'New York City<br>Population: 8.6 million' },
+      { coords: [34.0522, -118.2437], popup: 'Los Angeles<br>Population: 4.0 million' },
+      { coords: [41.8781, -87.6298], popup: 'Chicago<br>Population: 2.7 million' }
     ];
 
     markers.forEach(({ coords, popup }) => {
@@ -97,11 +110,27 @@
     map.on('locationfound', function (e) {
       L.marker(e.latlng).addTo(map)
         .bindPopup('You are here').openPopup();
+      userLocation = e.latlng;
     });
 
     map.on('locationerror', function () {
       alert('Unable to retrieve your location');
     });
+
+    let userLocation = null;
+
+    function queryDistance(lat, lng, cityName) {
+      if (!userLocation) {
+        map.locate();
+        alert('Locating user... Please try again in a moment.');
+        return;
+      }
+
+      const userLatLng = L.latLng(userLocation.lat, userLocation.lng);
+      const cityLatLng = L.latLng(lat, lng);
+      const distance = userLatLng.distanceTo(cityLatLng) / 1000; // meters to kilometers
+      alert(`Distance from your location to ${cityName}: ${distance.toFixed(2)} km`);
+    }
   </script>
 </body>
 </html>
